@@ -14,8 +14,8 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- External Data File -->
-    <script src="data.js"></script>
+    <!-- 核心更新点：每次更新 data.js 后，请修改下面的 v=1.2 为更大的数字（如 1.3） -->
+    <script src="data.js?v=1.2"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
@@ -55,6 +55,7 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
+        // 로컬 데이터 로드
         const initialTermsData = window.initialTermsData || [];
 
         const Icon = ({ name, size = 24, className = "" }) => {
@@ -139,6 +140,7 @@
                 return saved ? JSON.parse(saved) : {};
             });
 
+            // 데이터 변경 감지 시 로컬 스토리지 저장
             useEffect(() => {
                 localStorage.setItem('tm_notes_v3', JSON.stringify(notes));
             }, [notes]);
@@ -210,7 +212,7 @@
                         )}
                     </header>
 
-                    {/* Main Content Area */}
+                    {/* Main Content */}
                     <main className="flex-1 relative overflow-y-auto p-4 flex flex-col items-center">
                         
                         {activeTab === 'card' && (
@@ -229,7 +231,6 @@
                                             <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
                                                 {/* Front Side */}
                                                 <div className="absolute inset-0 backface-hidden bg-white rounded-3xl shadow-xl border-t-8 border-orange-500 p-8 flex flex-col justify-between">
-                                                    {/* Star Icon only visible on front side via opacity logic */}
                                                     <button 
                                                         onClick={(e) => {
                                                             e.stopPropagation();
@@ -282,7 +283,7 @@
                                 ) : (
                                     <div className="mt-20 text-slate-300 text-center flex flex-col items-center">
                                         <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mb-4"><Icon name="Search" size={32} /></div>
-                                        <p className="font-bold text-sm px-10 text-center text-slate-500">메뉴에서 학습할 주제를 선택하세요</p>
+                                        <p className="font-bold text-sm px-10 text-center text-slate-500 text-sm">주제 메뉴에서 단어를 선택해 주세요</p>
                                     </div>
                                 )}
                             </div>
@@ -344,7 +345,7 @@
                                         onClick={() => { setSelectedChapter(null); setCurrentIndex(0); setActiveTab('card'); }}
                                         className="w-full p-4 rounded-2xl bg-blue-600 text-white shadow-lg font-extrabold text-sm flex justify-center items-center gap-3 active:scale-95 transition-all mt-4"
                                     >
-                                        <Icon name="RotateCw" size={18} /> 전체 단어 랜덤 복습
+                                        <Icon name="RotateCw" size={18} /> 전체 단어 복습
                                     </button>
                                 </div>
                             </div>
