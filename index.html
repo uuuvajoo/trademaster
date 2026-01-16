@@ -14,6 +14,9 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- External Data File -->
+    <script src="data.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         
@@ -28,14 +31,16 @@
 
         .perspective-1000 { perspective: 1000px; }
         .transform-style-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; }
+        .backface-hidden { 
+            backface-visibility: hidden; 
+            -webkit-backface-visibility: hidden; 
+        }
         .rotate-y-180 { transform: rotateY(180deg); }
         
         .overflow-y-auto {
             -webkit-overflow-scrolling: touch;
         }
 
-        /* 아이폰 노치 및 하단 바 대응 */
         .pb-safe {
             padding-bottom: calc(1rem + env(safe-area-inset-bottom));
         }
@@ -50,7 +55,8 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- 아이콘 컴포넌트 ---
+        const initialTermsData = window.initialTermsData || [];
+
         const Icon = ({ name, size = 24, className = "" }) => {
             const icons = {
                 BookOpen: <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />,
@@ -116,36 +122,6 @@
                 </svg>
             );
         };
-
-        const initialTermsData = [
-            { id: 1, part: 1, partName: "제1부 무역계약", chapter: 1, chapterName: "제1장 무역계약", kor: "낙성계약", eng: "Consensual Contract", cn: "诺成合同", korDesc: "당사자 간의 합의만으로 계약이 성립하는 것을 의미합니다.", cnDesc: "仅凭当事人之间的意思表示一致（合意）即可成立的合同。" },
-            { id: 2, part: 1, partName: "제1부 무역계약", chapter: 2, chapterName: "제2장 무역계약의 성립과정", kor: "확정청약", eng: "Firm Offer", cn: "确定要约", korDesc: "취소 불능 청약으로 유효기간이 정해져 있는 청약입니다.", cnDesc: "在有效期限内不可撤销的要约。" },
-            { id: 3, part: 1, partName: "제1부 무역계약", chapter: 3, chapterName: "제3장 무역계약조건", kor: "품질결정시기", eng: "Time of Quality Determination", cn: "品质决定时间", korDesc: "선적시 혹은 양륙시 품질을 결정할지 정하는 조건입니다.", cnDesc: "约定在装运时或卸货时确定货物质量的条款。" },
-            { id: 4, part: 1, partName: "제1부 무역계약", chapter: 4, chapterName: "제4장 무역계약의 위반과 구제", kor: "본질적 계약위반", eng: "Fundamental Breach", cn: "本质性违约", korDesc: "상대방의 기대를 실질적으로 박탈할 정도의 중대한 위반입니다.", cnDesc: "实质上剥夺了对方根据合同有权期待得到的利益的违约行为。" },
-            { id: 5, part: 1, partName: "제1부 무역계약", chapter: 5, chapterName: "제5장 인코텀즈-I", kor: "FCA", eng: "Free Carrier", cn: "货交承运人", korDesc: "매도인이 물품을 운송인에게 인도할 때 위험이 이전됩니다.", cnDesc: "卖方将货物交给买方指定的承运人即完成交货。" },
-            { id: 6, part: 1, partName: "제1부 무역계약", chapter: 6, chapterName: "제6장 인코텀즈-II", kor: "DDP", eng: "Delivered Duty Paid", cn: "完税后交货", korDesc: "매도인이 수입 통관 및 관세까지 부담하는 가장 큰 의무 조건입니다.", cnDesc: "卖方承担进口清关及税费并将货物送达目的地的条款。" },
-            { id: 7, part: 1, partName: "제1부 무역계약", chapter: 7, chapterName: "제7장 국제해상운송 I", kor: "개별운송계약", eng: "Affreightment in a General Ship", cn: "班轮运输合同", korDesc: "정기선 운송에서 개별 화물을 위해 체결하는 계약입니다.", cnDesc: "在班轮运输中针对单件货物签署的运输合同。" },
-            { id: 8, part: 1, partName: "제1부 무역계약", chapter: 8, chapterName: "제8장 국제해상운송 II", kor: "용선계약", eng: "Charter Party", cn: "租船合同", korDesc: "선박의 전부 또는 일부를 빌리는 계약입니다.", cnDesc: "租赁整船 or 部分船位进行运输的合同。" },
-            { id: 9, part: 1, partName: "제1부 무역계약", chapter: 9, chapterName: "제9장 선하증권", kor: "무사고 선하증권", eng: "Clean B/L", cn: "清洁提单", korDesc: "물품의 외관상 결함이 기재되지 않은 깨끗한 B/L입니다.", cnDesc: "未注明货物外表状况不良或缺陷的提单。" },
-            { id: 10, part: 1, partName: "제1부 무역계약", chapter: 10, chapterName: "제10장 해상보험", kor: "현실전손", eng: "Actual Total Loss", cn: "实际全损", korDesc: "물품이 물리적으로 완전히 멸실되거나 가치를 상실한 상태입니다.", cnDesc: "货物在物理上完全毁灭 or 失去原有商业价值的状态。" },
-            { id: 11, part: 1, partName: "제1부 무역계약", chapter: 11, chapterName: "제11장 해상보험 II", kor: "위부", eng: "Abandonment", cn: "委付", korDesc: "추정전손 시 피보험자가 권리를 보험자에게 양도하고 전손금을 청구하는 행위입니다.", cnDesc: "推定全损下被保险人将权利转让给保险人并索要全损赔偿的行为。" },
-            { id: 12, part: 1, partName: "제1부 무역계약", chapter: 12, chapterName: "제12장 운송서류로서의 보험증권", kor: "보험증권", eng: "Insurance Policy", cn: "保险单", korDesc: "보험계약의 성립과 내용을 증명하기 위해 보험자가 발행하는 서류입니다.", cnDesc: "证明保险合同成立及内容的书面证明文件。" },
-            { id: 13, part: 1, partName: "제1부 무역계약", chapter: 13, chapterName: "제13장 클레임과 상사중재", kor: "중재합의", eng: "Arbitration Agreement", cn: "仲裁协议", korDesc: "분쟁을 법원이 아닌 중재로 해결하기로 한 당사자 간의 합의입니다.", cnDesc: "双方协议将争议提交仲裁解决而非诉诸法院的约定。" },
-            { id: 21, part: 2, partName: "제2부 무역결제", chapter: 1, chapterName: "제1장 무역대금의 결제 방법", kor: "추심 (D/P, D/A)", eng: "Collection", cn: "托收", korDesc: "은행을 통해 대금을 회수하는 방식으로 신용장보다 위험도가 높습니다.", cnDesc: "出口人委托银行向进口人收取货款的方式。" },
-            { id: 22, part: 2, partName: "제2부 무역결제", chapter: 2, chapterName: "제2장 신용장", kor: "수익자", eng: "Beneficiary", cn: "受益人", korDesc: "신용장의 대금을 지급받을 권리가 있는 자(수출자)입니다.", cnDesc: "信用证项下有权索取货款的一方（出口商）。" },
-            { id: 23, part: 2, partName: "제2부 무역결제", chapter: 3, chapterName: "제3장 선적서류와 환어음", kor: "환어음", eng: "Bill of Exchange", cn: "汇票", korDesc: "채권자가 채무자에게 지급을 요청하는 무조건 위탁서입니다.", cnDesc: "出票人委托付款人见票 or 定期支付款项的票据。" },
-            { id: 24, part: 2, partName: "제2부 무역결제", chapter: 4, chapterName: "제4장 환어음의 매입과 심사", kor: "네고 (Nego)", eng: "Negotiation", cn: "议付", korDesc: "은행이 환어음과 선적서류를 매입하여 자금을 융통해주는 행위입니다.", cnDesc: "银行买入汇票和单据并先行垫付资金的行为。" },
-            { id: 31, part: 3, partName: "제3부 외환실무", chapter: 1, chapterName: "제1장 외국환의 개념", kor: "송금환", eng: "Remittance", cn: "汇付", korDesc: "은행을 통해 해외로 대금을 보내는 환의 형태입니다.", cnDesc: "通过银行将外汇款项从一个国家汇往另一个国家。" },
-            { id: 32, part: 3, partName: "제3부 외환실무", chapter: 2, chapterName: "제2장 외환시장과 환관리", kor: "외환포지션", eng: "Foreign Exchange Position", cn: "外汇头寸", korDesc: "외화 자산과 부채의 차액을 의미합니다.", cnDesc: "指金融机构所持有的外汇资产与负债的差额。" },
-            { id: 33, part: 3, partName: "제3부 외환실무", chapter: 3, chapterName: "제3장 쉽게 보는 환율과 선물", kor: "스왑 (Swap)", eng: "Currency Swap", cn: "货币互换", korDesc: "두 당사자가 통화를 서로 교환하고 일정 기간 후 재교환하는 거래입니다.", cnDesc: "交易双方按约定比例交换不同币种的本金和利息。" },
-            { id: 41, part: 4, partName: "제4부 대외무역법", chapter: 1, chapterName: "제1장 대외무역법의 개요와 총칙", kor: "자유무역", eng: "Free Trade", cn: "自由贸易", korDesc: "대외무역법이 지향하는 기본 원칙으로 무역 제한을 최소화합니다.", cnDesc: "减少贸易限制，促进国际贸易自由化。" },
-            { id: 45, part: 4, partName: "제4부 대외무역법", chapter: 5, chapterName: "제5장 전략물자와 산업설비", kor: "전략물자", eng: "Strategic Goods", cn: "战略物资", korDesc: "안보상 이유로 수출 제한이 필요한 민감 물품입니다.", cnDesc: "出于国家安全考虑需限制出口的敏感物资。" },
-            { id: 47, part: 4, partName: "제4부 대외무역법", chapter: 7, chapterName: "제7장 원산지표시제도", kor: "원산지증명서 (C/O)", eng: "Certificate of Origin", cn: "原产地证明书", korDesc: "물품의 제조 또는 생산국을 증명하는 서류입니다.", cnDesc: "证明货物制造 or 生产国家的法律文件。" },
-            { id: 51, part: 5, partName: "제5부 관세법", chapter: 1, chapterName: "제1장 관세법의 기초", kor: "관세선", eng: "Customs Line", cn: "关税线", korDesc: "관세 부과의 기준이 되는 가상의 경계선입니다.", cnDesc: "海关执行征税任务的界线。" },
-            { id: 61, part: 5, partName: "제5부 관세법", chapter: 11, chapterName: "제11장 보세구역제도", kor: "보세창고", eng: "Bonded Warehouse", cn: "保税仓库", korDesc: "관세 유보 상태에서 물품을 보관할 수 있는 창고입니다.", cnDesc: "在保税状态下存放外国货物的仓库。" },
-            { id: 62, part: 5, partName: "제5부 관세법", chapter: 12, chapterName: "제12장 통관", kor: "수입신고수리", eng: "Import Acceptance", cn: "进口申报受理", korDesc: "세관이 수입신고를 확인하고 물품 반출을 허가하는 행위입니다.", cnDesc: "海关核准进口申报并允许货物提取。" },
-            { id: 81, part: 7, partName: "제7부 국제규칙", chapter: 1, chapterName: "제1장 UCP600", kor: "엄격일치의 원칙", eng: "Doctrine of Strict Compliance", cn: "严格一致原则", korDesc: "제시된 서류가 신용장 조건과 문면상 엄격히 일치해야 한다는 원칙입니다.", cnDesc: "信用证项下的单据必须与信用证条款在表面上完全相符。" }
-        ];
 
         function App() {
             const [activeTab, setActiveTab] = useState('card');
@@ -251,14 +227,15 @@
                                             onClick={() => setIsFlipped(!isFlipped)}
                                         >
                                             <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
-                                                {/* Front Side: 별표 표시 */}
+                                                {/* Front Side */}
                                                 <div className="absolute inset-0 backface-hidden bg-white rounded-3xl shadow-xl border-t-8 border-orange-500 p-8 flex flex-col justify-between">
+                                                    {/* Star Icon only visible on front side via opacity logic */}
                                                     <button 
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setFavorites(prev => prev.includes(currentTerm.id) ? prev.filter(id => id !== currentTerm.id) : [...prev, currentTerm.id]);
                                                         }}
-                                                        className="absolute top-6 right-6 p-2 z-10"
+                                                        className={`absolute top-6 right-6 p-2 z-10 transition-opacity duration-300 ${isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                                                     >
                                                         <Icon name="Star" size={24} className={favorites.includes(currentTerm.id) ? "fill-yellow-400 text-yellow-400" : "text-slate-200"} />
                                                     </button>
@@ -270,7 +247,7 @@
                                                     <div className="flex justify-center items-center text-slate-300 text-[10px] font-bold gap-1 italic"><Icon name="RotateCw" size={12} /> 터치하여 뒤집기</div>
                                                 </div>
 
-                                                {/* Back Side: 별표 표시 안함 */}
+                                                {/* Back Side */}
                                                 <div className="absolute inset-0 backface-hidden rotate-y-180 bg-white rounded-3xl shadow-xl border-t-8 border-blue-600 p-6 flex flex-col">
                                                     <div className="flex-1 overflow-y-auto space-y-5">
                                                         <section>
@@ -305,7 +282,7 @@
                                 ) : (
                                     <div className="mt-20 text-slate-300 text-center flex flex-col items-center">
                                         <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mb-4"><Icon name="Search" size={32} /></div>
-                                        <p className="font-bold text-sm px-10 text-center">메뉴에서 학습할 주제를 선택하세요</p>
+                                        <p className="font-bold text-sm px-10 text-center text-slate-500">메뉴에서 학습할 주제를 선택하세요</p>
                                     </div>
                                 )}
                             </div>
@@ -387,7 +364,6 @@
                                             <div key={term.id} className="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-orange-500 flex justify-between items-center active:bg-orange-50">
                                                 <div className="text-left">
                                                     <p className="font-extrabold text-slate-800 text-sm">{term.kor}</p>
-                                                    {/* 영어와 중국어 병기 표시 */}
                                                     <p className="text-[10px] text-slate-400 font-medium">{term.eng} | {term.cn}</p>
                                                 </div>
                                                 <button 
